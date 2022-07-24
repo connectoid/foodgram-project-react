@@ -2,50 +2,62 @@ from tkinter import CASCADE
 #from django.contrib.auth.models import User
 from users.models import User
 from django.db import models
+from django.core import validators
 
 
 class Tag(models.Model):
     name = models.CharField(max_length=150)
-    color = models.PositiveIntegerField()
+    color = models.CharField(
+        'Цвет в HEX',
+        max_length=7,
+        default='#569914',
+        validators=[
+            validators.RegexValidator(
+                regex=r'#[a-f\d]{6}',
+                message='Укажите цвет в HEX кодировке.'
+            )
+        ])
     slug = models.SlugField(max_length=100)
 
-    def __str__(self) -> str:
+    def __str__(self):
         return self.name
 
 
 class Ingredient(models.Model):
-    title = models.CharField(max_length=150)
-    unit = models.CharField(max_length=50)
+    name = models.CharField(max_length=150)
+    measurement_unit = models.CharField(max_length=50)
+    #amount = amount = models.PositiveIntegerField('amount')
     
-    def __str__(self) -> str:
-        return self.title
+    def __str__(self):
+        return self.name
 
 
 class Recipe(models.Model):
-    title = models.CharField(max_length=150)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='images/') # !!!! CHECK
-    text = models.TextField()
+    tags = models.ManyToManyField(Tag, related_name='recipes')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipes', null=True, blank=True)
     ingredients = models.ManyToManyField(
         Ingredient,
         through='IngredientToRecipe',
         related_name='recipes'
     )
-    tag = models.ManyToManyField(Tag)
-    cook_time = models.PositiveIntegerField()
+    name = models.CharField(max_length=150)
+    image = models.ImageField(upload_to='images/') # !!!! CHECK
+    text = models.TextField()
+    cooking_time = models.PositiveIntegerField()
+    is_favorited = models.BooleanField(default=False)
+    is_in_shopping_cart = models.BooleanField(default=False)
 
-    def __str__(self) -> str:
-        return self.title
+    def __str__(self):
+        return self.name
 
 
 class IngredientToRecipe(models.Model):
-    recipe = models.ForeignKey(Recipe, related_name='ingredient_recipe', on_delete=CASCADE)
-    ingredient = models.ForeignKey(Ingredient, related_name='ingredient_recipe', on_delete=CASCADE)
-    unit = models.CharField(max_length=50)
-    quantity = models.CharField(max_length=50)
+    recipe = models.ForeignKey(Recipe, related_name='ingredient_recipe', on_delete=models.CASCADE)
+    ingredient = models.ForeignKey(Ingredient, related_name='ingredient_recipe', on_delete=models.CASCADE)
+    #measurement_unit = models.CharField(max_length=50)
+    amount = models.PositiveIntegerField('amount')
     #instructions = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return (f'Для рецепта {self.recipe} необходимо {self.quantity} {self.unit} '
+        return (f'Для рецепта {self.recipe} необходимо {self.amount} {self.measurement_unit} '
                 f'{self.ingredient}')
-                

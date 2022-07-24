@@ -16,7 +16,7 @@ class Command(BaseCommand):
             dict_reader = csv.DictReader(csvfile)
             for row in dict_reader:
                 Ingredient.objects.get_or_create(
-                    title=row['title'],
-                    unit=row['unit'])
+                    name=row['name'],
+                    measurement_unit=row['measurement_unit'])
 
         self.stdout.write(self.style.SUCCESS('База данных успешно заполнена'))
