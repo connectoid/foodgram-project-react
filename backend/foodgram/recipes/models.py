@@ -2,6 +2,7 @@ from tkinter import CASCADE
 #from django.contrib.auth.models import User
 from users.models import User
 from django.db import models
+from django.db.models import UniqueConstraint
 from django.core import validators
 
 
@@ -44,7 +45,6 @@ class Recipe(models.Model):
     image = models.ImageField(upload_to='images/') # !!!! CHECK
     text = models.TextField()
     cooking_time = models.PositiveIntegerField()
-    is_favorited = models.BooleanField(default=False)
     is_in_shopping_cart = models.BooleanField(default=False)
 
     def __str__(self):
@@ -61,3 +61,54 @@ class IngredientToRecipe(models.Model):
     def __str__(self):
         return (f'Для рецепта {self.recipe} необходимо {self.amount} {self.measurement_unit} '
                 f'{self.ingredient}')
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=CASCADE,
+        related_name='favorites',
+        verbose_name='Пользователь',
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=CASCADE,
+        related_name='favorites',
+        verbose_name='Рецепт',
+    )
+
+    class Meta:
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
+        constraints = (
+            UniqueConstraint(
+                fields=('user', 'recipe',),
+                name='unique_user_recipe',
+            ),
+        )
+
+    def __str__(self):
+        return f'{self.user} -> {self.recipe}'
+
+
+class ShoppingCart(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='carts',
+        verbose_name='Пользователь',
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='carts',
+        verbose_name='Рецепт',
+    )
+
+    class Meta:
+        verbose_name = 'Корзина'
+        verbose_name_plural = 'Корзина'
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'recipe'],
+                                    name='unique shopping cart')
+        ]

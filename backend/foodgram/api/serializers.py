@@ -1,8 +1,9 @@
 from venv import create
+from attr import field
 from rest_framework import serializers
 from drf_extra_fields.fields import Base64ImageField
 
-from recipes.models import Tag, Ingredient, Recipe, IngredientToRecipe
+from recipes.models import Tag, Ingredient, Recipe, IngredientToRecipe, ShoppingCart
 from users.serializers import CustomUserSerializer
 
 
@@ -41,11 +42,18 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     ingredients = IngredientToRecipeSerializer(read_only=True, many=True, source='ingredient_recipe')
     author = CustomUserSerializer(read_only=True)
     image = Base64ImageField()
+    is_favorited = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
         fields = 'id', 'tags', 'author', 'ingredients', 'name', 'image', 'text', 'cooking_time', 'is_favorited', 'is_in_shopping_cart'
 
+    def get_is_favorited(self, obj):
+        user = self.context['request'].user
+        return (
+            user.is_authenticated
+            and user.favorites.filter(recipe=obj).exists()
+        )
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
     #tags = TagSerializer(many=True)
@@ -92,3 +100,23 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         serializer = RecipeReadSerializer(instance, context=self.context)
         return serializer.data
 
+class RecipeFavoriteSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Recipe
+        fields = 'id', 'name', 'image', 'cooking_time'
+
+
+class ShoppingCartSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для списка покупок
+    """
+    class Meta:
+        model = ShoppingCart
+        fields = ('user', 'recipe')
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        context = {'request': request}
+        return RecipeFavoriteSerializer(
+            instance.recipe, context=context).data
