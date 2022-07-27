@@ -2,11 +2,14 @@ from urllib import request, response
 from django.db import IntegrityError
 from django.shortcuts import render
 
-from rest_framework import viewsets, status
-from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
+from rest_framework import viewsets, status, permissions
+from rest_framework.permissions import SAFE_METHODS, AllowAny, IsAuthenticated
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
+from rest_framework import filters
 from rest_framework.status import (
     HTTP_200_OK,
     HTTP_201_CREATED,
@@ -16,14 +19,15 @@ from rest_framework.status import (
 
 from recipes.models import Tag, Ingredient, Recipe, Favorite, ShoppingCart
 from .serializers import TagSerializer, IngredientSerializer, RecipeReadSerializer, RecipeWriteSerializer, RecipeFavoriteSerializer, ShoppingCartSerializer
-
+from .permissions import OwnerOrReadOnly, ReadOnly
+from .filters import RecipeFilter
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
-    #lookup_field = 'slug'
+    lookup_field = 'slug'
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    # permission_classes = (AdminOrReadOnly,)
-    # pagination_class = LimitOffsetPagination
+    permission_classes = (AllowAny,)
+    pagination_class = None
     # filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     # search_fields = ('name',)
 
@@ -32,20 +36,34 @@ class IngredientViewSet(viewsets.ModelViewSet):
     #lookup_field = 'slug'
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    # permission_classes = (AdminOrReadOnly,)
-    # pagination_class = LimitOffsetPagination
-    # filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    # search_fields = ('name',)
-
+    permission_classes = (AllowAny,)
+    pagination_class = None
+    #filter_backends = (DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter)
+    #search_fields = ('^name',)
+    #ordering_fields = ('^name',)
+    filter_backends = (SearchFilter, )
+    search_fields = ('name', )
 
 class RecipeViewSet(viewsets.ModelViewSet):
     #lookup_field = 'slug'
     queryset = Recipe.objects.all()
+    #permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (OwnerOrReadOnly,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilter
     #serializer_class = RecipeSerializer
     # permission_classes = (AdminOrReadOnly,)
     # pagination_class = LimitOffsetPagination
     # filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     # search_fields = ('name',)
+
+    def get_permissions(self):
+        # Если в GET-запросе требуется получить информацию об объекте
+        if self.action == 'retrieve':
+            # Вернем обновленный перечень используемых пермишенов
+            return (ReadOnly(),)
+        # Для остальных ситуаций оставим текущий перечень пермишенов без изменений
+        return super().get_permissions()
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
@@ -59,7 +77,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    def add_to_favorite(self, request, recipe):
+    def add_favorite(self, request, recipe):
         try:
             Favorite.objects.create(user=request.user, recipe=recipe)
         except IntegrityError:
@@ -73,7 +91,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             status=HTTP_201_CREATED,
         )
 
-    def delete_from_favorite(self, request, recipe):
+    def delete_favorite(self, request, recipe):
         favorite = Favorite.objects.filter(user=request.user, recipe=recipe)
         if not favorite.exists():
             return Response(
@@ -91,8 +109,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def favorite(self, request, pk=None):
         recipe = get_object_or_404(Recipe, pk=pk)
         if request.method == 'POST':
-            return self.add_to_favorite(request, recipe)
-        return self.delete_from_favorite(request, recipe)
+            return self.add_favorite(request, recipe)
+        return self.delete_favorite(request, recipe)
 
     @action(
         methods=['POST', 'DELETE'],

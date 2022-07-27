@@ -3,8 +3,9 @@ from attr import field
 from rest_framework import serializers
 from drf_extra_fields.fields import Base64ImageField
 
-from recipes.models import Tag, Ingredient, Recipe, IngredientToRecipe, ShoppingCart
 from users.serializers import CustomUserSerializer
+from recipes.models import Tag, Ingredient, Recipe, IngredientToRecipe, ShoppingCart
+
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -57,7 +58,9 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
     #tags = TagSerializer(many=True)
-
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(), many=True
+    )
     ingredients = IngredientToRecipeSerializer(many=True)
     author = CustomUserSerializer(read_only=True)
     image = Base64ImageField()
@@ -100,8 +103,9 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         serializer = RecipeReadSerializer(instance, context=self.context)
         return serializer.data
 
+
 class RecipeFavoriteSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = Recipe
         fields = 'id', 'name', 'image', 'cooking_time'

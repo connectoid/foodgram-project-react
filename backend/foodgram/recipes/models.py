@@ -1,4 +1,3 @@
-from tkinter import CASCADE
 #from django.contrib.auth.models import User
 from users.models import User
 from django.db import models
@@ -27,7 +26,6 @@ class Tag(models.Model):
 class Ingredient(models.Model):
     name = models.CharField(max_length=150)
     measurement_unit = models.CharField(max_length=50)
-    #amount = amount = models.PositiveIntegerField('amount')
     
     def __str__(self):
         return self.name
@@ -54,7 +52,7 @@ class Recipe(models.Model):
 class IngredientToRecipe(models.Model):
     recipe = models.ForeignKey(Recipe, related_name='ingredient_recipe', on_delete=models.CASCADE)
     ingredient = models.ForeignKey(Ingredient, related_name='ingredient_recipe', on_delete=models.CASCADE)
-    #measurement_unit = models.CharField(max_length=50)
+    measurement_unit = models.CharField(max_length=50)
     amount = models.PositiveIntegerField('amount')
     #instructions = models.TextField(blank=True, null=True)
 
@@ -66,13 +64,13 @@ class IngredientToRecipe(models.Model):
 class Favorite(models.Model):
     user = models.ForeignKey(
         User,
-        on_delete=CASCADE,
+        on_delete=models.CASCADE,
         related_name='favorites',
         verbose_name='Пользователь',
     )
     recipe = models.ForeignKey(
         Recipe,
-        on_delete=CASCADE,
+        on_delete=models.CASCADE,
         related_name='favorites',
         verbose_name='Рецепт',
     )

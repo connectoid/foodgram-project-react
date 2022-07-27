@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        with open('static/data/ingredients.csv', 'r', encoding='utf-8') as csvfile:
+        with open('backend_static/data/ingredients.csv', 'r', encoding='utf-8') as csvfile:
             dict_reader = csv.DictReader(csvfile)
             for row in dict_reader:
                 Ingredient.objects.get_or_create(

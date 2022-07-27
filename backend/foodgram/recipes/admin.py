@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from . import models
 from .forms import TagForm
-from users.models import User
+from users.models import User, Subscribe
 
 
 class IngredientToRecipeInLine(admin.StackedInline):
@@ -13,7 +13,7 @@ class IngredientToRecipeInLine(admin.StackedInline):
 @admin.register(models.Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ['name', 'author', 'cooking_time']
-    #inlines = [IngredientToRecipeInLine]
+    inlines = [IngredientToRecipeInLine]
 
 
 @admin.register(models.Tag)
@@ -32,6 +32,10 @@ class IngredientAdmin(admin.ModelAdmin):
 class IngredientToRecipeAdmin(admin.ModelAdmin):
     list_display = ['recipe', 'ingredient', 'amount']
 
-@admin.register(models.User)
+@admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_display = ['username', 'password', 'first_name', 'last_name', 'email', 'is_subscribed']
+
+@admin.register(Subscribe)
+class SubscribeAdmin(admin.ModelAdmin):
+    list_display = ['user', 'author']
