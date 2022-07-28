@@ -39,3 +39,7 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(Subscribe)
 class SubscribeAdmin(admin.ModelAdmin):
     list_display = ['user', 'author']
+
+#@admin.register(models.ShoppingCart)
+#class ShoppingCartAdmin(admin.ModelAdmin):
+#    list_display = ['user', 'recipes']

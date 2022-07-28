@@ -44,6 +44,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer(read_only=True)
     image = Base64ImageField()
     is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
@@ -56,6 +57,20 @@ class RecipeReadSerializer(serializers.ModelSerializer):
             and user.favorites.filter(recipe=obj).exists()
         )
 
+    def get_user(self):
+        return self.context['request'].user
+
+    def get_is_in_shopping_cart(self, obj):
+        user = self.get_user()
+        #user = self.context['request'].user
+        try:
+            return (
+                user.is_authenticated and
+                user.shopping_cart.recipes.filter(pk__in=(obj.pk,)).exists()
+            )
+        except ShoppingCart.DoesNotExist:
+            return False
+
 class RecipeWriteSerializer(serializers.ModelSerializer):
     #tags = TagSerializer(many=True)
     tags = serializers.PrimaryKeyRelatedField(
@@ -64,6 +79,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     ingredients = IngredientToRecipeSerializer(many=True)
     author = CustomUserSerializer(read_only=True)
     image = Base64ImageField()
+    
 
     class Meta:
         model = Recipe
@@ -111,16 +127,16 @@ class RecipeFavoriteSerializer(serializers.ModelSerializer):
         fields = 'id', 'name', 'image', 'cooking_time'
 
 
-class ShoppingCartSerializer(serializers.ModelSerializer):
-    """
-    Сериализатор для списка покупок
-    """
-    class Meta:
-        model = ShoppingCart
-        fields = ('user', 'recipe')
-
-    def to_representation(self, instance):
-        request = self.context.get('request')
-        context = {'request': request}
-        return RecipeFavoriteSerializer(
-            instance.recipe, context=context).data
+#class ShoppingCartSerializer(serializers.ModelSerializer):
+#    """
+#    Сериализатор для списка покупок
+#    """
+#    class Meta:
+#        model = ShoppingCart
+#        fields = ('user', 'recipe')
+#
+#    def to_representation(self, instance):
+#        request = self.context.get('request')
+#        context = {'request': request}
+#       return RecipeFavoriteSerializer(
+#            instance.recipe, context=context).data
