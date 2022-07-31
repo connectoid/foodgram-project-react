@@ -1,9 +1,10 @@
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 
-from drf_extra_fields.fields import Base64ImageField
-from recipes.models import (Ingredient, IngredientToRecipe, Recipe,
-                            ShoppingCart, Tag)
 from rest_framework import serializers
+from drf_extra_fields.fields import Base64ImageField
+
+from recipes.models import (Ingredient, IngredientToRecipe, Recipe,
+                            Tag)
 from users.serializers import CustomUserSerializer
 
 
@@ -98,7 +99,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         for ingredient in ingredients:
             if ingredient['amount'] <= 0:
                 raise ValidationError(
-                    'Количество ингридиента должно быть больше нуля'
+                    'Количество ингредиента должно быть больше нуля'
                 )
             ingredient_id = ingredient['ingredient']['id']
             if ingredient_id in ingredients_in_recipe:

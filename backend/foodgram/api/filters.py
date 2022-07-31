@@ -1,9 +1,9 @@
 from django.core.exceptions import ObjectDoesNotExist
-
 from django_filters.rest_framework import (AllValuesMultipleFilter,
                                            BooleanFilter, CharFilter,
                                            FilterSet)
-from recipes.models import Ingredient, Recipe, ShoppingCart
+
+from recipes.models import Ingredient, Recipe
 
 
 class RecipeFilter(FilterSet):
@@ -20,7 +20,6 @@ class RecipeFilter(FilterSet):
             return queryset
         favorites = self.request.user.favorites.all()
         return queryset.filter(pk__in=favorites.values('id'))
-        
 
     def get_is_in_shopping_cart(self, queryset, name, value):
         if not value:
