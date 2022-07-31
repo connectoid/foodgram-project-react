@@ -1,42 +1,25 @@
 from django.db import IntegrityError
-
-from django.http import HttpResponse
-from rest_framework import viewsets
-from rest_framework.viewsets import GenericViewSet
-from rest_framework.permissions import SAFE_METHODS, AllowAny, IsAuthenticated
-from rest_framework.decorators import action
-from django.shortcuts import get_object_or_404
-from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Sum
-from rest_framework.status import (
-    HTTP_201_CREATED,
-    HTTP_204_NO_CONTENT,
-    HTTP_400_BAD_REQUEST
-)
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 
-from recipes.models import (
-    Tag,
-    Ingredient,
-    Recipe,
-    Favorite,
-    ShoppingCart,
-)
+from django_filters.rest_framework import DjangoFilterBackend
+from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import SAFE_METHODS, AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.status import (HTTP_201_CREATED, HTTP_204_NO_CONTENT,
+                                   HTTP_400_BAD_REQUEST)
+from rest_framework.viewsets import GenericViewSet
 
-from .serializers import (
-    TagSerializer,
-    IngredientSerializer,
-    RecipeReadSerializer,
-    RecipeWriteSerializer,
-    RecipeFavoriteSerializer
-)
-
+from .filters import IngredientSearchFilter, RecipeFilter
+from .paginations import (RecipePageNumberPagination,
+                          ShoppingCartPageNumberPagination)
 from .permissions import OwnerOrReadOnly, ReadOnly
-from .filters import RecipeFilter, IngredientSearchFilter
-from .paginations import (
-    RecipePageNumberPagination,
-    ShoppingCartPageNumberPagination
-)
+from .serializers import (IngredientSerializer, RecipeFavoriteSerializer,
+                          RecipeReadSerializer, RecipeWriteSerializer,
+                          TagSerializer)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -64,30 +47,22 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = RecipePageNumberPagination
     filter_backends = (DjangoFilterBackend,)
 
-    def get_permissions(self):
-        if self.action == 'retrieve':
-            return (ReadOnly(),)
-        return super().get_permissions()
-
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
             return RecipeReadSerializer
         return RecipeWriteSerializer
 
-    def get_queryset(self):
-        return Recipe.objects.all()
-
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
     def add_favorite(self, request, recipe):
-        try:
-            Favorite.objects.create(user=request.user, recipe=recipe)
-        except IntegrityError:
+        favorite = Favorite.objects.filter(user=request.user, recipe=recipe)
+        if favorite.exists():
             return Response(
-                {'errors': 'already exists'},
+                {'errors': 'Этот рецепт уже добавлен в избранные'},
                 status=HTTP_400_BAD_REQUEST,
             )
+        Favorite.objects.create(user=request.user, recipe=recipe)
         serializer = RecipeFavoriteSerializer(recipe)
         return Response(
             serializer.data,
@@ -98,7 +73,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         favorite = Favorite.objects.filter(user=request.user, recipe=recipe)
         if not favorite.exists():
             return Response(
-                {'errors': 'dont exists'},
+                {'errors': 'Этот рецепт не находится в избранных'},
                 status=HTTP_400_BAD_REQUEST,
             )
         favorite.delete()
@@ -121,7 +96,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         INGREDIENT = 'ingredients__name'
         UNIT = 'ingredients__measurement_unit'
         FILENAME = 'shopping_cart.txt'
-        # user = request.user
         recipes = (
             request.user.shopping_cart.recipes.prefetch_related('ingredients')
             )

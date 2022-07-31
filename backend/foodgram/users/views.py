@@ -1,14 +1,12 @@
 from djoser.views import UserViewSet
-
 from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListAPIView, get_object_or_404
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
-
+from .models import Subscribe, User
 from .serializers import CustomUserSerializer, SubscribeSerializer
-from .models import User, Subscribe
 
 
 class CustomUserViewSet(UserViewSet):
@@ -53,7 +51,7 @@ class SubscribeViewSet(APIView):
             user=request.user,
             author_id=user_id
         )
-        if subscription:
+        if subscription.exists():
             subscription.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(

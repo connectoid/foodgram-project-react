@@ -1,9 +1,9 @@
-from django_filters.rest_framework import (
-    FilterSet, AllValuesMultipleFilter,
-    BooleanFilter, CharFilter
-)
+from django.core.exceptions import ObjectDoesNotExist
 
-from recipes.models import Recipe, Ingredient, ShoppingCart
+from django_filters.rest_framework import (AllValuesMultipleFilter,
+                                           BooleanFilter, CharFilter,
+                                           FilterSet)
+from recipes.models import Ingredient, Recipe, ShoppingCart
 
 
 class RecipeFilter(FilterSet):
@@ -19,9 +19,8 @@ class RecipeFilter(FilterSet):
         if not value:
             return queryset
         favorites = self.request.user.favorites.all()
-        return queryset.filter(
-            pk__in=(favorite.recipe.pk for favorite in favorites)
-        )
+        return queryset.filter(pk__in=favorites.values('id'))
+        
 
     def get_is_in_shopping_cart(self, queryset, name, value):
         if not value:
@@ -30,11 +29,9 @@ class RecipeFilter(FilterSet):
             recipes = (
                 self.request.user.shopping_cart.recipes.all()
             )
-        except ShoppingCart.DoesNotExist:
+        except ObjectDoesNotExist:
             return queryset
-        return queryset.filter(
-            pk__in=(recipe.pk for recipe in recipes)
-        )
+        return queryset.filter(pk__in=recipes.valuse('id'))
 
 
 class IngredientSearchFilter(FilterSet):

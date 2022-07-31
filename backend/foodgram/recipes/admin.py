@@ -1,8 +1,9 @@
 from django.contrib import admin
 
+from users.models import Subscribe, User
+
 from . import models
 from .forms import TagForm
-from users.models import User, Subscribe
 
 
 class IngredientToRecipeInLine(admin.StackedInline):
