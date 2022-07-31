@@ -12,8 +12,6 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
-from datetime import timedelta
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -82,12 +80,12 @@ WSGI_APPLICATION = 'foodgram.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-#DATABASES = {
+# DATABASES = {
 #    'default': {
 #        'ENGINE': 'django.db.backends.sqlite3',
 #        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
 #    }
-#}
+# }
 
 
 DATABASES = {
@@ -139,8 +137,8 @@ USE_TZ = True
 
 STATIC_URL = '/backend_static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-#STATIC_DIR = os.path.join(BASE_DIR, 'static')
-#STATICFILES_DIRS = [STATIC_DIR]
+# STATIC_DIR = os.path.join(BASE_DIR, 'static')
+# STATICFILES_DIRS = [STATIC_DIR]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -170,9 +168,6 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 6,
     
 }
-
-
-
 
 DJOSER = {
     "LOGIN_FIELD": 'email',

@@ -32,14 +32,19 @@ class IngredientAdmin(admin.ModelAdmin):
 class IngredientToRecipeAdmin(admin.ModelAdmin):
     list_display = ['recipe', 'ingredient', 'amount']
 
+
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ['username', 'password', 'first_name', 'last_name', 'email', 'is_subscribed']
+    list_display = [
+        'username',
+        'password',
+        'first_name',
+        'last_name',
+        'email',
+        'is_subscribed'
+    ]
+
 
 @admin.register(Subscribe)
 class SubscribeAdmin(admin.ModelAdmin):
     list_display = ['user', 'author']
-
-#@admin.register(models.ShoppingCart)
-#class ShoppingCartAdmin(admin.ModelAdmin):
-#    list_display = ['user', 'recipes']

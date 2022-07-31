@@ -2,7 +2,7 @@ import csv
 
 from django.core.management import BaseCommand
 
-from recipes.models import Ingredient, User
+from recipes.models import Ingredient
 
 CSV_PATH = 'static/data/'
 
@@ -12,7 +12,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        with open('backend_static/data/ingredients.csv', 'r', encoding='utf-8') as csvfile:
+        with open(
+                'static/data/ingredients.csv', 'r',
+                encoding='utf-8'
+                ) as csvfile:
             dict_reader = csv.DictReader(csvfile)
             for row in dict_reader:
                 Ingredient.objects.get_or_create(

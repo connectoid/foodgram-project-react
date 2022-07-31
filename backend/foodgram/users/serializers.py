@@ -1,14 +1,11 @@
 from djoser.serializers import UserSerializer, UserCreateSerializer
-from rest_framework import serializers, permissions
+from rest_framework import serializers
 
 from .models import User
 from recipes.models import Recipe
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
-    """
-    Сериализатор для регистрации пользователя.
-    """
     class Meta:
         model = User
         fields = (
@@ -36,29 +33,28 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 class CustomUserSerializer(UserSerializer):
     class Meta:
         model = User
-        fields = 'email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed'
+        fields = (
+            'email', 'id', 'username', 'first_name',
+            'last_name', 'is_subscribed'
+        )
 
 
 class SubscribeRecipeSerializer(serializers.ModelSerializer):
-    """
-    Сериализатор для краткого отображения сведений о рецепте
-    """
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class SubscribeSerializer(CustomUserSerializer):
-    """
-    Сериализатор для вывода подписок пользователя
-    """
     recipes = serializers.SerializerMethodField(read_only=True)
     recipes_count = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
-        fields = ('email', 'id', 'username', 'first_name', 'last_name',
-                  'is_subscribed', 'recipes', 'recipes_count')
+        fields = (
+            'email', 'id', 'username', 'first_name', 'last_name',
+            'is_subscribed', 'recipes', 'recipes_count'
+        )
 
     @staticmethod
     def get_recipes_count(obj):
