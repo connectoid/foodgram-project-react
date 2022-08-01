@@ -6,7 +6,7 @@ services:
       - db:/var/lib/postgresql/data/
     env_file:
       - ./.env
-# test
+# test1
   web:
     build:
       context: ../backend
