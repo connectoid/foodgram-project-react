@@ -6,8 +6,8 @@ services:
       - db:/var/lib/postgresql/data/
     env_file:
       - ./.env
-# test9
-  backend:
+# test10
+  web:
     # build:
     #  context: ../backend
     image: beleysasha/foodgram:latest
@@ -28,7 +28,7 @@ services:
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
-      - backend
+      - web
   nginx:
     image: nginx:1.19.3
     ports:
