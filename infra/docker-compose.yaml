@@ -6,7 +6,7 @@ services:
       - db:/var/lib/postgresql/data/
     env_file:
       - ./.env
-# test7
+# test8
   web:
     # build:
     #  context: ../backend
@@ -28,7 +28,7 @@ services:
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
-      - backend
+      - web
   nginx:
     image: nginx:1.19.3
     ports:
