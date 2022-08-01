@@ -6,7 +6,6 @@ services:
       - db:/var/lib/postgresql/data/
     env_file:
       - ./.env
-  # Примеры наполнения файла .env представлены в README и .env.template
 
   web:
     build:
