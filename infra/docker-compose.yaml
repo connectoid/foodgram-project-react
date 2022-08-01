@@ -8,8 +8,9 @@ services:
       - ./.env
 # test7
   web:
-    build:
-      context: ../backend
+    # build:
+    #  context: ../backend
+    image: beleysasha/foodgram:latest
     restart: always
     volumes:
       - backend_static:/app/static/
@@ -20,9 +21,10 @@ services:
       - ./.env
 
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    # build:
+    #  context: ../frontend
+    #  dockerfile: Dockerfile
+    image: beleysasha/foodgram:latest
     volumes:
       - ../frontend/:/app/result_build/
   nginx:
