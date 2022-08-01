@@ -30,7 +30,7 @@ class RecipeFilter(FilterSet):
             )
         except ObjectDoesNotExist:
             return queryset
-        return queryset.filter(pk__in=recipes.valuse('id'))
+        return queryset.filter(pk__in=recipes.values('id'))
 
 
 class IngredientSearchFilter(FilterSet):

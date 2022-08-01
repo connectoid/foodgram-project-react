@@ -4,7 +4,7 @@ from django.core.management import BaseCommand
 
 from recipes.models import Ingredient
 
-CSV_PATH = 'static/data/'
+CSV_PATH = 'backend_static/data/'
 
 
 class Command(BaseCommand):
@@ -13,7 +13,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         with open(
-                'static/data/ingredients.csv', 'r',
+                'backend_static/data/ingredients.csv', 'r',
                 encoding='utf-8'
                 ) as csvfile:
             dict_reader = csv.DictReader(csvfile)
