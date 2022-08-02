@@ -11,6 +11,8 @@ services:
     # build:
     #  context: ../backend
     image: beleysasha/foodgram:latest
+    expose:
+      - 8000
     restart: always
     volumes:
       - backend_static:/app/static/
