@@ -22,15 +22,9 @@ class RecipeFilter(FilterSet):
         return queryset.filter(pk__in=favorites.values('id'))
 
     def get_is_in_shopping_cart(self, queryset, name, value):
-        if not value:
-            return queryset
-        try:
-            recipes = (
-                self.request.user.shopping_cart.recipes.all()
-            )
-        except ObjectDoesNotExist:
-            return queryset
-        return queryset.filter(pk__in=recipes.values('id'))
+        if value:
+            return queryset.filter(shopping_cart__user=self.request.user)
+        return queryset
 
 
 class IngredientSearchFilter(FilterSet):
