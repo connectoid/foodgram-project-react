@@ -10,7 +10,7 @@ services:
   backend:
     # build:
     #  context: ../backend
-    image: beleysasha/foodgram:latest
+    image: beleysasha/foodgram_backend:latest
     expose:
       - 8000
     restart: always
