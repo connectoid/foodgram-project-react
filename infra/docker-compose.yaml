@@ -6,10 +6,7 @@ services:
       - db:/var/lib/postgresql/data/
     env_file:
       - ./.env
-# test14
   backend:
-    # build:
-    #  context: ../backend
     image: beleysasha/foodgram_backend:latest
     expose:
       - 8000
@@ -23,9 +20,6 @@ services:
       - ./.env
 
   frontend:
-    # build:
-    #  context: ../frontend
-    # dockerfile: Dockerfile
     image: beleysasha/foodgram_frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
