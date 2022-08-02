@@ -7,7 +7,7 @@ services:
     env_file:
       - ./.env
 # test13
-  web:
+  backend:
     # build:
     #  context: ../backend
     image: beleysasha/foodgram:latest
