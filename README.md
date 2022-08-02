@@ -61,10 +61,35 @@ sudo apt install docker.io
 sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 ```
+
+Запустите docker compose:
+```
+docker-compose up -d --build
+```
+При сборке создаются 4 контейнера:
+
+контейнер базы данных db
+контейнер фронтенда и документации frontend
+контейнер приложения backend
+контейнер web-сервера nginx
+
+Примените миграции:
+```
+docker-compose exec backend python manage.py migrate
+```
+Загрузите ингредиенты:
+```
+docker-compose exec backend python manage.py load_data_csv
+```
 Создайте суперпользователя:
 ```
-docker-compose exec web python manage.py createsuperuser
+docker-compose exec backend python manage.py createsuperuser
 ```
+Соберите статику:
+```
+docker-compose exec backend python manage.py collectstatic --noinput
+```
+
 Аутентифкация проходт по email и паролю.
 
 ## Разработчик
