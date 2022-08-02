@@ -6,7 +6,7 @@ services:
       - db:/var/lib/postgresql/data/
     env_file:
       - ./.env
-# test7
+# test11
   web:
     # build:
     #  context: ../backend
@@ -23,10 +23,12 @@ services:
   frontend:
     # build:
     #  context: ../frontend
-    #  dockerfile: Dockerfile
+    # dockerfile: Dockerfile
     image: beleysasha/foodgram:latest
     volumes:
       - ../frontend/:/app/result_build/
+    depends_on:
+      - web
   nginx:
     image: nginx:1.19.3
     ports:
@@ -37,6 +39,9 @@ services:
       - ../docs/:/usr/share/nginx/html/api/docs/
       - backend_static:/usr/share/nginx/html/backend_static/:ro
       - media_value:/usr/share/nginx/html/media/:ro
+    restart: always
+    depends_on:
+      - frontend
 
 volumes:
   db:
