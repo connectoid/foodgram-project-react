@@ -136,7 +136,7 @@ class ShoppingCart(models.Model):
     )
     recipes = models.ManyToManyField(
         'recipes.Recipe',
-        related_name='in_shopping_cart',
+        related_name='shopping_cart',
         verbose_name='Рецепты',
     )
 
