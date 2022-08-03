@@ -114,7 +114,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
 class ShoppingCartViewSet(GenericViewSet):
-    # pagination_class = ShoppingCartPageNumberPagination
+    pagination_class = ShoppingCartPageNumberPagination
     permission_classes = (IsAuthenticated,)
     serializer_class = RecipeFavoriteSerializer
     queryset = ShoppingCart.objects.all()
